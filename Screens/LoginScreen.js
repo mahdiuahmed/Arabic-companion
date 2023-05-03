@@ -1,50 +1,109 @@
-import { StyleSheet, Text, View, StatusBar} from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  StatusBar,
+  TouchableOpacity,
+} from "react-native";
 import React, { useLayoutEffect, useState, useEffect } from "react";
 import db from "../Firebase";
+import { Button, Input } from "@rneui/themed";
+import GlobalStyles from "../utils/GlobalStyles";
+import { Audio } from "expo-av";
 
 const LoginScreen = () => {
-  // const collectionRef = dbcollection('users');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [sound, setSound] = useState();
 
-  //     collectionRef.get()
-  //   .then((querySnapshot) => {
-  //     querySnapshot.forEach((documentSnapshot) => {
-  //       const data = documentSnapshot.data();
-  //       console.log(data); // Log the data to the console
-  //     });
-  //   })
-  //   .catch((error) => {
-  //     console.log(error); // Log any errors to the console
-  //   });
+  async function playSound() {
+    console.log("Loading Sound");
+    const { sound } = await Audio.Sound.createAsync(
+      require("../assets/Sounds/Alert.mp3")
+    );
+    setSound(sound);
 
-  const [data, setData] = useState(null);
+    console.log("Playing Sound");
+    await sound.playAsync();
+  }
 
   useEffect(() => {
-    const unsubscribe = db
-      .collection("users")
-      .doc("ZjpKXuAGhpeU0fBogQ8C")
-      .onSnapshot((documentSnapshot) => {
-        const info = documentSnapshot.data();
-        setData(data);
-      });
+    return sound
+      ? () => {
+          console.log("Unloading Sound");
+          sound.unloadAsync();
+        }
+      : undefined;
+  }, [sound]);
 
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  const handleLogin = () => {
+    // TODO: Implement Firebase authentication logic here
+  };
 
   return (
     <View style={styles.container}>
-      <Text>{data.first}</Text>
+      <Text style={styles.title}>ARABIC COMPANION</Text>
+      <Text style={styles.subTitle}>LOG IN</Text>
+      <Input
+        placeholder="البريد الإلكتروني"
+        value={email}
+        onChangeText={setEmail}
+        style={styles.input}
+      />
+      <Input
+        placeholder="كلمة المرور"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        style={styles.input}
+      />
+      <Button
+        title="تسجيل الدخول"
+        onPress={handleLogin}
+        buttonStyle={styles.button}
+      />
+      <Button
+        title="Play Sound"
+        onPress={playSound}
+        touchSoundDisabled={true}
+      />
     </View>
   );
 };
 
-export default LoginScreen;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f0f0f0",
+  },
+  title: {
+    fontFamily: "my-font",
+    fontSize: 24,
+    color: "#0B7E7F",
+    marginBottom: 32,
+  },
+  subTitle: {
+    fontFamily: "my-font",
+    fontSize: 16,
+    marginBottom: 32,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 8,
+    width: "80%",
+    marginBottom: 16,
+    borderRadius: 8,
     backgroundColor: "#fff",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+  },
+  button: {
+    backgroundColor: "#20AE7C",
+    width: "80%",
+    marginTop: 16,
+    borderRadius: 8,
   },
 });
+
+export default LoginScreen;
