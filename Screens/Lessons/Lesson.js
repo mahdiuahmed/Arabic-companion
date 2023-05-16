@@ -1,67 +1,79 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+// Import necessary libraries and components
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React from "react";
 
+// Define the Lesson component
+const Lesson = ({ route, navigation }) => {
 
-const Lesson = ({route, navigation}) => {
-
+  // Extract the title and id values from the route params
   const { title } = route.params;
+  const { id } = route.params;
 
+  // Define functions for navigating to the "LearnContent" and "TestContent" screens
   const learnContent = () => {
-    // navigate to the lesson quiz/game screen
-    navigation.navigate('LearnContent', { title });
+    navigation.navigate("LearnContent", { title, id });
   };
   const testContent = () => {
-    // navigate to the lesson quiz/game screen
-    navigation.navigate('TestContent', { title });
+    navigation.navigate("TestContent", { title, id });
   };
 
-
+  // Render the component's view
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
-      <Text style={styles.duration}>Estimated duration: 20 minutes</Text>
       <TouchableOpacity style={styles.buttonLearn} onPress={learnContent}>
         <Text style={styles.buttonText}>LEARN CONTENT</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.buttonQuiz} onPress={testContent} >
+      <TouchableOpacity style={styles.buttonQuiz} onPress={testContent}>
         <Text style={styles.buttonText}>START QUIZ</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
+// Export the Lesson component as the default export
 export default Lesson;
 
+// Define the component's styles using a StyleSheet component
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginHorizontal: 10,
   },
   title: {
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 32,
-    fontWeight: 'bold',
-    fontFamily: 'poppinsBold',
+    fontWeight: "bold",
+    fontFamily: "poppinsBold",
+    marginBottom: 32,
   },
   duration: {
     marginVertical: 10,
+    fontFamily: "poppinsRegular",
+    fontSize: 16,
   },
   buttonLearn: {
-    padding: 10,
-    backgroundColor: '#54BAB9',
+    backgroundColor: "#54BAB9",
     borderRadius: 10,
-    marginTop: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginBottom: 16,
+    alignItems: "center",
   },
   buttonQuiz: {
-    padding: 10,
-    backgroundColor: '#54BAB9',
+    backgroundColor: "#54BAB9",
     borderRadius: 10,
-    marginTop: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginBottom: 16,
+    alignItems: "center",
   },
   buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
+    fontFamily: "poppinsRegular",
+    fontSize: 16,
   },
 });

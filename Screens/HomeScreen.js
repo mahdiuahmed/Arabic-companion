@@ -13,99 +13,27 @@ import { Audio } from "expo-av";
 import * as Speech from "expo-speech";
 import { Voice } from "expo-speech";
 import { Button, Input } from "@rneui/themed";
+import { lessons } from "../AllLessons";
 
 const HomeScreen = ({ navigation }) => {
-  const [name, setname] = useState("");
   const handleLessonPress = (lesson) => {
-    navigation.navigate("Lesson", { title: lesson.title });
+    navigation.navigate("Lesson", { id: lesson.id - 1, title: lesson.title });
   };
-
-  const list = async () => {
-    let voices = await Speech.getAvailableVoicesAsync();
-    
-    //console.log(voices);
-  };
-
-
-
-  const lessons = [
-    {
-      title: "Lesson 1: Arabic Alphabet\nAlif to Thaa (ا - ث)",
-      duration: "20 minutes",
-    },
-    {
-      title: "Lesson 2: Arabic Alphabet\nJeem to Daal (ج - د)",
-      duration: "15 minutes",
-    },
-    {
-      title: "Lesson 3: Arabic Alphabet\nThaal to Seen (ذ - س)",
-      duration: "15 minutes",
-    },
-    {
-      title: "Lesson 4: Arabic Alphabet\nSheen to Taa' (س - ط)",
-      duration: "15 minutes",
-    },
-    {
-      title: "Lesson 5: Arabic Alphabet\nDhaa' to Faa (ظ - ف)",
-      duration: "15 minutes",
-    },
-    {
-      title: "Lesson 6: Arabic Alphabet\nQaaf to meem (ق - م)",
-      duration: "15 minutes",
-    },
-    {
-      title: "Lesson 7: Arabic Alphabet\nNuun to Yaa (ن - ي)",
-      duration: "15 minutes",
-    },
-    {
-      title: "Lesson 7: Arabic Alphabet\nNuun to Yaa (ن - ي)",
-      duration: "15 minutes",
-    },
-    {
-      title: "Lesson 7: Arabic Alphabet\nNuun to Yaa (ن - ي)",
-      duration: "15 minutes",
-    },
-    {
-      title: "Lesson 7: Arabic Alphabet\nNuun to Yaa (ن - ي)",
-      duration: "15 minutes",
-    },
-    // more lessons here
-  ];
-
-  const handlePress = () => {
-    options = {
-      voice: "ar-xa-x-ard-local",
-      pitch: 1,
-      rate: 0.2,
-    };
-
-    Speech.speak(name, options);
-  };
-
-  const getUser = getAuth();
-  const user = auth.currentUser;
 
   return (
-    <View>
-      <ScrollView contentContainerStyle={{ alignItems: 'stretch', marginTop: 16,}}>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollView}>
         {lessons.map((lesson, index) => (
           <TouchableOpacity
-          key={index}
+            key={index}
             onPress={() => handleLessonPress(lesson)}
-            >
-            <View style={styles.lessonsContainer} key={index}>
-              <Text style={styles.lessonsTitle}>{lesson.title}</Text>
-              <Text style={styles.lessonsDuration}>
-                Duration: {lesson.duration}
-              </Text>
+          >
+            <View style={styles.lessonContainer}>
+              <Text style={styles.lessonTitle}>{lesson.title}</Text>
             </View>
           </TouchableOpacity>
         ))}
-        </ScrollView>
-      
-      {/* <Input onChangeText={setname} value={name} /> */}
-      {/* <Button title="Speak Arabic Word" onPress={handlePress} /> */}
-      {/* <Text>{user.email}</Text> */}
+      </ScrollView>
     </View>
   );
 };
@@ -113,21 +41,38 @@ const HomeScreen = ({ navigation }) => {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-  lessonsContainer: {
-    padding: 10,
-    marginVertical:10,
-    marginLeft: 16,
-    backgroundColor: "#54BAB9",
-    borderRadius: 10,
-    width: '75%'
+  container: {
+    flex: 1,
+    backgroundColor: "#0b7e7f",
   },
-  lessonsTitle: {
+  scrollView: {
+    alignItems: "stretch",
+    marginTop: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+  },
+  lessonContainer: {
+    padding: 16,
+    marginBottom: 16,
+    backgroundColor: "#1ba37d",
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  lessonTitle: {
     fontSize: 18,
-    fontFamily: 'poppinsBold',
-    color: "white",
+    fontFamily: "poppinsBold",
+    color: "#fff",
   },
-  lessonsDuration: {
-    color: "white",
-    fontFamily: 'poppinsRegular'
+  lessonDuration: {
+    color: "#fff",
+    fontFamily: "poppinsRegular",
+    marginTop: 8,
   },
 });

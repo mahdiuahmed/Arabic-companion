@@ -1,11 +1,15 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as Speech from "expo-speech";
+import { lessons } from "../../AllLessons";
+import { auth, db } from "../../Firebase";
+import { addDoc, collection } from "firebase/firestore";
 
-const TestContent = ({ route }) => {
+const TestContent = ({ route, navigation }) => {
   const { title } = route.params;
-
-  // const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
+  const { id } = route.params;
+  const correct = [];
+  const incorrect = [];
 
   const handlePress = () => {
     options = {
@@ -14,79 +18,66 @@ const TestContent = ({ route }) => {
       rate: 0.5,
     };
 
-    Speech.speak(questions[currentQuestion].letter, options);
+    Speech.speak(lessons[id].testQuestions[currentQuestion].letter, options);
   };
-
-  const questions = [
-    {
-      id: 1,
-      letter: "أ",
-      transliteration: "(Alif)",
-      soundSymbol: "a",
-      englishEquivalent: "Apple",
-      options: ["a", "e", "o"],
-      answer: "a",
-    },
-    {
-      id: 2,
-      letter: "ب",
-      transliteration: "(Baa)",
-      soundSymbol: "B",
-      englishEquivalent: "Bet",
-      options: ["b", "p", "d"],
-      answer: "b",
-    },
-    {
-      id: 3,
-      letter: "ت",
-      transliteration: "(Taa)",
-      soundSymbol: "t",
-      englishEquivalent: "tea",
-      options: ["t", "k", "c"],
-      answer: "t",
-    },
-    // { id: 4, letter: "ث", transliteration: '(Thaa)', soundSymbol: 'th', englishEquivalent: 'Thing' },
-    // { id: 5, letter: "ج", transliteration: '(Jiim)', soundSymbol: 'j', englishEquivalent: 'judge' },
-    // { id: 6, letter: "ح", transliteration: '(Haa)', soundSymbol: 'H', englishEquivalent: '' },
-    // { id: 7, letter: "خ", transliteration: '(Khaa)', soundSymbol: 'Kh', englishEquivalent: '' },
-    // { id: 8, letter: "د", transliteration: '(Daal)', soundSymbol: 'd', englishEquivalent: 'door' },
-    // { id: 9, letter: "ذ", transliteration: '(Dhaal)', soundSymbol: 'dh', englishEquivalent: 'That' },
-    // { id: 10, letter: "ر", transliteration: '(Raa)', soundSymbol: 'r', englishEquivalent: 'Red' },
-    // { id: 11, letter: "ز", transliteration: '(Zaa)', soundSymbol: 'z', englishEquivalent: 'Zoo' },
-    // { id: 12, letter: "س", transliteration: '(Siin)', soundSymbol: 's', englishEquivalent: 'Sea' },
-    // { id: 13, letter: "ش", transliteration: '(Shiin)', soundSymbol: 'sh', englishEquivalent: 'Shoe' },
-    // { id: 14, letter: "ص", transliteration: '(Saad)', soundSymbol: 's', englishEquivalent: 'Saw' },
-    // { id: 15, letter: "ض", transliteration: '(Daad)', soundSymbol: 'd', englishEquivalent: 'Dul' },
-    // { id: 16, letter: "ط", transliteration: '(Taa)', soundSymbol: 't', englishEquivalent: 'Task' },
-    // { id: 17, letter: "ظ", transliteration: '(Dhaa)', soundSymbol: 'dh', englishEquivalent: 'Bet' },
-    // { id: 18, letter: "ع", transliteration: '(\'Ain)', soundSymbol: '\'a', englishEquivalent: '\'Angry' },
-    // { id: 19, letter: "غ", transliteration: '(Ghain)', soundSymbol: 'gh', englishEquivalent: '' },
-    // { id: 20, letter: "ف", transliteration: '(Faa)', soundSymbol: 'f', englishEquivalent: 'Fire' },
-    // { id: 21, letter: "ق", transliteration: '(Qaaf)', soundSymbol: 'B', englishEquivalent: 'Bet' },
-    // { id: 22, letter: "ك", transliteration: '(Kaaf)', soundSymbol: 'k', englishEquivalent: 'Kid' },
-    // { id: 23, letter: "ل", transliteration: '(Laam)', soundSymbol: 'l', englishEquivalent: 'Let' },
-    // { id: 24, letter: "م", transliteration: '(Miim)', soundSymbol: 'm', englishEquivalent: 'Man' },
-    // { id: 25, letter: "ن", transliteration: '(Nuun)', soundSymbol: 'n', englishEquivalent: 'Net' },
-    // { id: 26, letter: "هـ", transliteration: '(Haa)', soundSymbol: 'B', englishEquivalent: 'Bet' },
-    // { id: 27, letter: "و", transliteration: '(Waaw)', soundSymbol: 'w', englishEquivalent: 'Watch' },
-    // { id: 28, letter: "ي", transliteration: '(Yaa)', soundSymbol: 'y', englishEquivalent: 'Yet' },
-  ];
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
 
   const handleAnswer = (option) => {
-    if (option === questions[currentQuestion].answer) {
-      setScore(score + 1);
-      console.log("correct " + score);
+    if (option === lessons[id].testQuestions[currentQuestion].answer) {
+      addDoc(
+        collection(
+          db,
+          "users",
+          auth.currentUser.uid,
+          "Lesson " + lessons[id].id + " correct answers"
+        ),
+        {
+          LessonName: lessons[id].title,
+          LessonId: lessons[id].id,
+          CorrectAnswers: {
+            answer:
+              lessons[id].testQuestions[currentQuestion].letter ||
+              lessons[id].testQuestions[currentQuestion].letterInitial,
+          },
+        }
+      );
+
+      console.log(correct);
+      setScore((score) => score + 1); // increment score by 1
     } else {
-      console.log("no " + score);
+      addDoc(
+        collection(
+          db,
+          "users",
+          auth.currentUser.uid,
+          "Lesson " + lessons[id].id + " incorrect answers"
+        ),
+        {
+          LessonName: lessons[id].title,
+          LessonId: lessons[id].id,
+          IncorrectAnswers: {
+            answer:
+              lessons[id].testQuestions[currentQuestion].letter ||
+              lessons[id].testQuestions[currentQuestion].letterInitial,
+          },
+        }
+      );
     }
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
+    if (currentQuestion < lessons[id].testQuestions.length - 1) {
+      setCurrentQuestion((currentQuestion) => currentQuestion + 1);
     } else {
-      // End of quiz
-      alert(`You scored ${score+1}/${questions.length}`);
+      setScore((state) => {
+        navigation.navigate("FinishLesson", {
+          id,
+          title,
+          correct,
+          incorrect,
+          scoresss: state,
+        });
+        return state;
+      });
       setCurrentQuestion(0);
       setScore(0);
     }
@@ -95,14 +86,36 @@ const TestContent = ({ route }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.question}>
-        Question : {questions[currentQuestion].id}
+        Question: {lessons[id].testQuestions[currentQuestion].id}
       </Text>
       <Text style={styles.question}>What sound does this letter make?</Text>
+
       <TouchableOpacity style={styles.button} onPress={handlePress}>
-        <Text style={styles.letter}>{questions[currentQuestion].letter}</Text>
+        {lessons[id].testQuestions[currentQuestion].letter ? (
+          <Text style={styles.letter}>
+            {lessons[id].testQuestions[currentQuestion].letter}
+          </Text>
+        ) : null}
+
+        {lessons[id].testQuestions[currentQuestion].letterInitial ? (
+          <>
+            <Text style={styles.letter}>
+              {"Initial: " +
+                lessons[id].testQuestions[currentQuestion].letterInitial}
+            </Text>
+            <Text style={styles.letter}>
+              {"Medial: " +
+                lessons[id].testQuestions[currentQuestion].letterMedial}
+            </Text>
+            <Text style={styles.letter}>
+              {"Final: " +
+                lessons[id].testQuestions[currentQuestion].letterFinal}
+            </Text>
+          </>
+        ) : null}
       </TouchableOpacity>
       <View style={styles.options}>
-        {questions[currentQuestion].options.map((option) => (
+        {lessons[id].testQuestions[currentQuestion].options.map((option) => (
           <TouchableOpacity
             key={option}
             style={styles.option}
@@ -121,15 +134,20 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#F3EFEF",
   },
   question: {
-    fontSize: 20,
-    marginBottom: 20,
+    fontSize: 24,
+    fontWeight: "bold",
+    marginTop: 30,
+    marginBottom: 10,
+    color: "#4F4F4F",
   },
   letter: {
     fontSize: 60,
     fontWeight: "bold",
-    color: "white",
+    color: "#4F4F4F",
+    marginBottom: 20,
   },
   options: {
     flexDirection: "row",
@@ -138,14 +156,22 @@ const styles = StyleSheet.create({
     alignContent: "center",
   },
   option: {
-    backgroundColor: "#ccc",
+    backgroundColor: "#FFFFFF",
     borderRadius: 10,
-    width: "50%",
-    margin: 24,
+    padding: 16,
+    margin: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
   },
   optionText: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 24,
+    color: "#4F4F4F",
   },
   button: {
     backgroundColor: "#54BAB9",
@@ -155,6 +181,14 @@ const styles = StyleSheet.create({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
   },
 });
 

@@ -24,41 +24,14 @@ const LoginScreen = ({ navigation }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [sound, setSound] = useState();
-
 
   const register = () => {
-      createUserWithEmailAndPassword(auth, email, password)
+    createUserWithEmailAndPassword(auth, email, password)
       .then((user) => {
         user.user.updateProfile({
           displayName: name,
         });
       })
-      .catch((error) => alert(error.message));
-  };
-  
-  async function playSound() {
-    console.log("Loading Sound");
-    const { sound } = await Audio.Sound.createAsync(
-      require("../assets/Sounds/Alert.mp3")
-    );
-    setSound(sound);
-
-    console.log("Playing Sound");
-    await sound.playAsync();
-  }
-
-  useEffect(() => {
-    return sound
-      ? () => {
-          console.log("Unloading Sound");
-          sound.unloadAsync();
-        }
-      : undefined;
-  }, [sound]);
-
-  const handleLogin = () => {
-    // TODO: Implement Firebase authentication logic here
   };
 
   return (
@@ -117,18 +90,12 @@ const LoginScreen = ({ navigation }) => {
             }}
             onPress={register}
           />
-          {/* <Button
-        title="Play Sound"
-        onPress={playSound}
-        touchSoundDisabled={true}
-      /> */}
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 };
 
-// #0b7e7f,#13947d,#1ba37d,#20ae7c,#35bc88
 
 const styles = StyleSheet.create({
   keyboardView: {
